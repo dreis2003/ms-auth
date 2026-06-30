@@ -1,0 +1,279 @@
+{
+  "info": {
+    "name": "ms-auth",
+    "description": "Colecao para teste manual de autenticacao e gestao de usuarios.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "authBaseUrl",
+      "value": "http://localhost:8081"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "refreshToken",
+      "value": ""
+    },
+    {
+      "key": "usuarioId",
+      "value": ""
+    },
+    {
+      "key": "filialId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Login admin matriz",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{authBaseUrl}}/api/v1/auth/login",
+          "host": [
+            "{{authBaseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "login"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"admin@ikonbrasil.com.br\",\n  \"senha\": \"admin123\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const response = pm.response.json();",
+              "pm.collectionVariables.set('accessToken', response.accessToken);",
+              "pm.collectionVariables.set('refreshToken', response.refreshToken);",
+              "pm.environment.set('accessToken', response.accessToken);",
+              "pm.environment.set('refreshToken', response.refreshToken);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Criar usuario responsavel de filial",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{authBaseUrl}}/api/v1/usuarios",
+          "host": [
+            "{{authBaseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "usuarios"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"Responsavel Dojo Centro\",\n  \"email\": \"responsavel.centro@ikonbrasil.com.br\",\n  \"senha\": \"responsavel123\",\n  \"perfil\": \"FILIAL_RESPONSAVEL\",\n  \"filialId\": \"{{filialId}}\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const response = pm.response.json();",
+              "if (response.id) {",
+              "  pm.collectionVariables.set('usuarioId', response.id);",
+              "  pm.environment.set('usuarioId', response.id);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Criar usuario operador matriz",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{authBaseUrl}}/api/v1/usuarios",
+          "host": [
+            "{{authBaseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "usuarios"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"Operador Matriz\",\n  \"email\": \"operador@ikonbrasil.com.br\",\n  \"senha\": \"operador123\",\n  \"perfil\": \"MATRIZ_OPERADOR\",\n  \"filialId\": null\n}"
+        }
+      }
+    },
+    {
+      "name": "Listar usuarios",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "url": {
+          "raw": "{{authBaseUrl}}/api/v1/usuarios",
+          "host": [
+            "{{authBaseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "usuarios"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Buscar usuario por ID",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "url": {
+          "raw": "{{authBaseUrl}}/api/v1/usuarios/{{usuarioId}}",
+          "host": [
+            "{{authBaseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "usuarios",
+            "{{usuarioId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Inativar usuario",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "url": {
+          "raw": "{{authBaseUrl}}/api/v1/usuarios/{{usuarioId}}/inativar",
+          "host": [
+            "{{authBaseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "usuarios",
+            "{{usuarioId}}",
+            "inativar"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Ativar usuario",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "url": {
+          "raw": "{{authBaseUrl}}/api/v1/usuarios/{{usuarioId}}/ativar",
+          "host": [
+            "{{authBaseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "usuarios",
+            "{{usuarioId}}",
+            "ativar"
+          ]
+        }
+      }
+    }
+  ]
+}
